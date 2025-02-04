@@ -64,7 +64,7 @@ def main():
     twitch_links = st.text_area("Twitch Links (one per line):")
     parameter = st.text_input("Parameter for feedback:")
     persona = st.text_area("Define the AI Assistant Persona (e.g., 'You are an expert Twitch analyst...'):")
-    api_key = st.text_input("Enter your OpenAI API Key:", type="password")
+    api_key = st.text_input("Enter your Perplexity API Key:", type="password")
 
     if st.button("Submit"):
         if not twitch_links.strip() or not parameter.strip() or not persona.strip() or not api_key.strip():
@@ -99,6 +99,8 @@ def main():
                     st.write(f"**Link:** {data['link']}")
                     st.write(f"**Title:** {data['title']}")
                     st.write(f"**Description:** {data['description']}")
+                    st.write(f"**Followers:** {data['followers']}")
+                    st.write(f"**Viewers:** {data['viewers']}")
                     st.markdown("---")
             
             st.subheader("AI Feedback")
