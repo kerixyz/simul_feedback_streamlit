@@ -1,53 +1,89 @@
 import streamlit as st
-from openai import OpenAI
+import requests
+from bs4 import BeautifulSoup
+from openai import OpenAI  # Install OpenAI library: pip install openai
 
-# Show title and description.
-st.title("📄 Document question answering")
-st.write(
-    "Upload a document below and ask a question about it – GPT will answer! "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-)
+# Function to scrape Twitch data
+def scrape_twitch_data(twitch_link):
+    try:
+        # Send a GET request to the Twitch link
+        response = requests.get(twitch_link)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Extract relevant details (e.g., stream title, description)
+        title = soup.find('meta', {'property': 'og:title'})['content'] if soup.find('meta', {'property': 'og:title'}) else "Title not found"
+        description = soup.find('meta', {'property': 'og:description'})['content'] if soup.find('meta', {'property': 'og:description'}) else "Description not found"
+        
+        return {
+            "title": title,
+            "description": description,
+            "link": twitch_link
+        }
+    except Exception as e:
+        return {"error": str(e), "link": twitch_link}
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
-
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
-
-    # Let the user upload a file via `st.file_uploader`.
-    uploaded_file = st.file_uploader(
-        "Upload a document (.txt or .md)", type=("txt", "md")
-    )
-
-    # Ask the user for a question via `st.text_area`.
-    question = st.text_area(
-        "Now ask a question about the document!",
-        placeholder="Can you give me a short summary?",
-        disabled=not uploaded_file,
-    )
-
-    if uploaded_file and question:
-
-        # Process the uploaded file and question.
-        document = uploaded_file.read().decode()
-        messages = [
-            {
-                "role": "user",
-                "content": f"Here's a document: {document} \n\n---\n\n {question}",
-            }
-        ]
-
-        # Generate an answer using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+# Function to interact with OpenAI API
+def generate_feedback_with_ai(api_key, messages, max_tokens=150):
+    try:
+        client = OpenAI(api_key=api_key, base_url="https://api.perplexity.ai")
+        response = client.chat.completions.create(
+            model="sonar-pro",  # Replace with your desired model
             messages=messages,
-            stream=True,
+            max_tokens=max_tokens,
+            temperature=0.7
         )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error generating feedback: {e}"
 
-        # Stream the response to the app using `st.write_stream`.
-        st.write_stream(stream)
+# Main function to run the Streamlit app
+def main():
+    st.title("Twitch Data Feedback App with AI Assistant")
+
+    # Inputs
+    st.write("Enter Twitch links (one per line), a parameter for feedback, and define a persona for the AI assistant.")
+    twitch_links = st.text_area("Twitch Links (one per line):")
+    parameter = st.text_input("Parameter for feedback:")
+    persona = st.text_area("Define the AI Assistant Persona (e.g., 'You are an expert Twitch analyst...'):")
+    api_key = st.text_input("Enter your OpenAI API Key:", type="password")
+
+    if st.button("Submit"):
+        if not twitch_links.strip() or not parameter.strip() or not persona.strip() or not api_key.strip():
+            st.error("Please provide all inputs: Twitch links, parameter, persona, and API key.")
+        else:
+            # Split the input into individual links
+            links = [link.strip() for link in twitch_links.splitlines() if link.strip()]
+            
+            # Process each link and scrape data
+            scraped_data = []
+            
+            for link in links:
+                result = scrape_twitch_data(link)
+                if "error" in result:
+                    st.error(f"Failed to process {result['link']}: {result['error']}")
+                else:
+                    scraped_data.append(result)
+            
+            # Prepare messages for AI assistant
+            messages = [
+                {"role": "system", "content": persona},
+                {"role": "user", "content": f"Analyze the following Twitch data and provide feedback based on the parameter '{parameter}': {scraped_data}"}
+            ]
+            
+            # Generate feedback using OpenAI API
+            ai_feedback = generate_feedback_with_ai(api_key, messages)
+            
+            # Display results
+            st.subheader("Feedback Results")
+            if scraped_data:
+                for data in scraped_data:
+                    st.write(f"**Link:** {data['link']}")
+                    st.write(f"**Title:** {data['title']}")
+                    st.write(f"**Description:** {data['description']}")
+                    st.markdown("---")
+            
+            st.subheader("AI Feedback")
+            st.write(ai_feedback)
