@@ -13,13 +13,29 @@ def scrape_twitch_data(twitch_link):
         # Parse the HTML content using BeautifulSoup
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Extract relevant details (e.g., stream title, description)
+        # Extract stream title
         title = soup.find('meta', {'property': 'og:title'})['content'] if soup.find('meta', {'property': 'og:title'}) else "Title not found"
+        
+        # Extract stream description
         description = soup.find('meta', {'property': 'og:description'})['content'] if soup.find('meta', {'property': 'og:description'}) else "Description not found"
+        
+        # Attempt to extract number of followers (if available in the page source)
+        followers = None
+        followers_tag = soup.find('p', class_='CoreText-sc-cpl358-0')  # Update class based on Twitch's HTML structure
+        if followers_tag:
+            followers = followers_tag.text.strip()
+        
+        # Attempt to extract live viewers (if available in the page source)
+        viewers = None
+        viewers_tag = soup.find('p', class_='live-viewers-class')  # Update class based on Twitch's HTML structure
+        if viewers_tag:
+            viewers = viewers_tag.text.strip()
         
         return {
             "title": title,
             "description": description,
+            "followers": followers or "Followers data not found",
+            "viewers": viewers or "Live viewers data not found",
             "link": twitch_link
         }
     except Exception as e:
