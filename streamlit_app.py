@@ -87,3 +87,6 @@ def main():
             
             st.subheader("AI Feedback")
             st.write(ai_feedback)
+
+if __name__ == "__main__":
+    main()
