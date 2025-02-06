@@ -42,7 +42,7 @@ def scrape_twitch_data(twitch_link):
         return {"error": str(e), "link": twitch_link}
 
 # Function to interact with OpenAI API
-def generate_feedback_with_ai(api_key, messages, max_tokens=500):
+def generate_feedback_with_ai(api_key, messages, api_type, max_tokens=500):
     try:
         if api_type == "perplexity":
             client = OpenAI(api_key=api_key, base_url="https://api.perplexity.ai")
@@ -104,7 +104,7 @@ def main():
             ]
             
             # Generate feedback using OpenAI API
-            ai_feedback = generate_feedback_with_ai(api_key, messages)
+            ai_feedback = generate_feedback_with_ai(api_key, messages, api_type=api_type)
             
             # Display results
             st.subheader("Feedback Results")
