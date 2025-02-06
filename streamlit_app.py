@@ -44,6 +44,7 @@ def scrape_twitch_data(twitch_link):
 # Function to interact with OpenAI API
 def generate_feedback_with_ai(api_key, messages, api_type):
     try:
+        api_type = api_type.lower()
         if api_type == "perplexity":
             client = OpenAI(api_key=api_key, base_url="https://api.perplexity.ai")
             model = "sonar-pro"  # Replace with the desired Perplexity model
