@@ -34,8 +34,8 @@ def scrape_twitch_data(twitch_link):
         return {
             "title": title,
             "description": description,
-            "followers": followers or "Followers data not found",
-            "viewers": viewers or "Live viewers data not found",
+            # "followers": followers or "Followers data not found",
+            # "viewers": viewers or "Live viewers data not found",
             "link": twitch_link
         }
     except Exception as e:
@@ -62,7 +62,8 @@ def main():
     # Inputs
     st.write("Enter Twitch links (one per line), a parameter for feedback, and define a persona for the AI assistant.")
     twitch_links = st.text_area("Twitch Links (one per line):")
-    parameter = st.text_input("Parameter for feedback:")
+    additional_info = st.text_area("Additional Information (optional):")
+    # parameter = st.text_input("Parameter for feedback:")
     persona = st.text_area("Define the AI Assistant Persona (e.g., 'You are an expert Twitch analyst...'):")
     api_key = st.text_input("Enter your Perplexity API Key:", type="password")
 
@@ -86,7 +87,7 @@ def main():
             # Prepare messages for AI assistant
             messages = [
                 {"role": "system", "content": persona},
-                {"role": "user", "content": f"Analyze the following Twitch data and provide feedback based on the parameter '{parameter}': {scraped_data}"}
+                {"role": "user", "content": f"Analyze the following Twitch data and provide feedback based on this information: {scraped_data, additional_info}"}
             ]
             
             # Generate feedback using OpenAI API
@@ -99,8 +100,8 @@ def main():
                     st.write(f"**Link:** {data['link']}")
                     st.write(f"**Title:** {data['title']}")
                     st.write(f"**Description:** {data['description']}")
-                    st.write(f"**Followers:** {data['followers']}")
-                    st.write(f"**Viewers:** {data['viewers']}")
+                    # st.write(f"**Followers:** {data['followers']}")
+                    # st.write(f"**Viewers:** {data['viewers']}")
                     st.markdown("---")
             
             st.subheader("AI Feedback")
