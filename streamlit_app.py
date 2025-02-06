@@ -68,7 +68,9 @@ def main():
     api_key = st.text_input("Enter your Perplexity API Key:", type="password")
 
     if st.button("Submit"):
-        if not twitch_links.strip() or not parameter.strip() or not persona.strip() or not api_key.strip():
+        # if not twitch_links.strip() or not parameter.strip() or not persona.strip() or not api_key.strip():
+        #     st.error("Please provide all inputs: Twitch links, parameter, persona, and API key.")
+        if not twitch_links.strip() or not persona.strip() or not api_key.strip():
             st.error("Please provide all inputs: Twitch links, parameter, persona, and API key.")
         else:
             # Split the input into individual links
