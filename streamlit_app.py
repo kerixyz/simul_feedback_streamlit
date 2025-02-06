@@ -42,11 +42,20 @@ def scrape_twitch_data(twitch_link):
         return {"error": str(e), "link": twitch_link}
 
 # Function to interact with OpenAI API
-def generate_feedback_with_ai(api_key, messages, max_tokens=150):
+def generate_feedback_with_ai(api_key, messages, max_tokens=500):
     try:
-        client = OpenAI(api_key=api_key, base_url="https://api.perplexity.ai")
+        if api_type == "perplexity":
+            client = OpenAI(api_key=api_key, base_url="https://api.perplexity.ai")
+            model = "sonar-pro"  # Replace with the desired Perplexity model
+
+        elif api_type == "openai":
+            client = OpenAI(api_key=api_key)  # OpenAI uses its default base URL
+            model = "gpt-4o"  # Replace with the desired OpenAI model
+        else:
+            return "Invalid API type specified."
+
         response = client.chat.completions.create(
-            model="sonar-pro",  # Replace with your desired model
+            model=model,
             messages=messages,
             max_tokens=max_tokens,
             temperature=0.7
@@ -54,7 +63,6 @@ def generate_feedback_with_ai(api_key, messages, max_tokens=150):
         return response.choices[0].message.content
     except Exception as e:
         return f"Error generating feedback: {e}"
-
 # Main function to run the Streamlit app
 def main():
     st.title("Twitch Data Feedback App with AI Assistant")
@@ -65,7 +73,10 @@ def main():
     additional_info = st.text_area("Additional Information (optional):")
     # parameter = st.text_input("Parameter for feedback:")
     persona = st.text_area("Define the AI Assistant Persona (e.g., 'You are an expert Twitch analyst...'):")
-    api_key = st.text_input("Enter your Perplexity API Key:", type="password")
+
+    api_type = st.radio("Select API Type:", options=["Perplexity", "OpenAI"])
+    api_key = st.text_input(f"Enter your {api_type} API Key:", type="password")
+    # api_key = st.text_input("Enter your Perplexity API Key:", type="password")
 
     if st.button("Submit"):
         # if not twitch_links.strip() or not parameter.strip() or not persona.strip() or not api_key.strip():
