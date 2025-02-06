@@ -42,15 +42,17 @@ def scrape_twitch_data(twitch_link):
         return {"error": str(e), "link": twitch_link}
 
 # Function to interact with OpenAI API
-def generate_feedback_with_ai(api_key, messages, api_type, max_tokens=500):
+def generate_feedback_with_ai(api_key, messages, api_type):
     try:
         if api_type == "perplexity":
             client = OpenAI(api_key=api_key, base_url="https://api.perplexity.ai")
             model = "sonar-pro"  # Replace with the desired Perplexity model
+            max_tokens = 1000  # Adjust max tokens as needed
 
         elif api_type == "openai":
             client = OpenAI(api_key=api_key)  # OpenAI uses its default base URL
             model = "gpt-4o"  # Replace with the desired OpenAI model
+            max_tokens = 1500  # Adjust max tokens as needed
         else:
             return "Invalid API type specified."
 
@@ -74,7 +76,7 @@ def main():
     # parameter = st.text_input("Parameter for feedback:")
     persona = st.text_area("Define the AI Assistant Persona (e.g., 'You are an expert Twitch analyst...'):")
 
-    api_type = st.radio("Select API Type:", options=["Perplexity", "OpenAI"])
+    api_type = st.radio("Select API Type:", options=["perplexity", "openai"])
     api_key = st.text_input(f"Enter your {api_type} API Key:", type="password")
     # api_key = st.text_input("Enter your Perplexity API Key:", type="password")
 
