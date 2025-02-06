@@ -71,7 +71,7 @@ def main():
     st.title("Twitch Data Feedback App with AI Assistant")
 
     # Inputs
-    st.input("Enter Twitch links (one per line), a parameter for feedback, and define a persona for the AI assistant.")
+    st.text_input("Enter Twitch links (one per line), a parameter for feedback, and define a persona for the AI assistant.")
     twitch_links = st.text_area("Twitch Links (one per line):")
     additional_info = st.text_area("Additional Information (optional):")
     parameter = st.text_input("Parameter for feedback:")
