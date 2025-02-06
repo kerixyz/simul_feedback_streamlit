@@ -71,10 +71,10 @@ def main():
     st.title("Twitch Data Feedback App with AI Assistant")
 
     # Inputs
-    st.write("Enter Twitch links (one per line), a parameter for feedback, and define a persona for the AI assistant.")
+    st.input("Enter Twitch links (one per line), a parameter for feedback, and define a persona for the AI assistant.")
     twitch_links = st.text_area("Twitch Links (one per line):")
     additional_info = st.text_area("Additional Information (optional):")
-    # parameter = st.text_input("Parameter for feedback:")
+    parameter = st.text_input("Parameter for feedback:")
     persona = st.text_area("Define the AI Assistant Persona (e.g., 'You are an expert Twitch analyst...'):")
 
     api_type = st.radio("Select API Type:", options=["perplexity", "openai"])
@@ -82,10 +82,10 @@ def main():
     # api_key = st.text_input("Enter your Perplexity API Key:", type="password")
 
     if st.button("Submit"):
-        # if not twitch_links.strip() or not parameter.strip() or not persona.strip() or not api_key.strip():
-        #     st.error("Please provide all inputs: Twitch links, parameter, persona, and API key.")
-        if not twitch_links.strip() or not persona.strip() or not api_key.strip():
+        if not twitch_links.strip() or not parameter.strip() or not persona.strip() or not api_key.strip():
             st.error("Please provide all inputs: Twitch links, parameter, persona, and API key.")
+        # if not twitch_links.strip() or not persona.strip() or not api_key.strip():
+        #     st.error("Please provide all inputs: Twitch links, parameter, persona, and API key.")
         else:
             # Split the input into individual links
             links = [link.strip() for link in twitch_links.splitlines() if link.strip()]
